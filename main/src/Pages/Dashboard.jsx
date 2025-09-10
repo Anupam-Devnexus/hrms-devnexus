@@ -1,6 +1,8 @@
 import React from 'react';
 import data from "../DataStore/DashCard.json";
+import SearchBarComp from '../Component/SearchBarComp';
 import DashCard from '../Component/Card/DashCard';
+import RoleData from "../DataStore/complete.json"
 import {
   FaUsers,
   FaDollarSign,
@@ -41,6 +43,10 @@ export default function Dashboard() {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
   const role = authUser?.role || "employee";
 
+
+console.log("Data:", RoleData);
+
+
   // Get cards for current role
   const roleCards = data[role] || [];
 
@@ -53,17 +59,20 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {roleCards.map((card, index) => (
-        <DashCard
-          key={index}
-          title={card.label}
-          value={card.value}
-          description={card.description}
-          icon={iconMap[card.icon]}
-          borderColor={colorMap[card.color]}
-        />
-      ))}
+    <div className='flex  flex-col gap-2'>
+      <SearchBarComp />
+      <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {roleCards.map((card, index) => (
+          <DashCard
+            key={index}
+            title={card.label}
+            value={card.value}
+            description={card.description}
+            icon={iconMap[card.icon]}
+            borderColor={colorMap[card.color]}
+          />
+        ))}
+      </div>
     </div>
   );
 }

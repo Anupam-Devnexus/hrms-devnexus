@@ -7,6 +7,8 @@ import ProtectedRoute from "./Auth/ProtectedRoute";
 import Dashboard from "./Pages/Dashboard";
 import Navbar from "./Component/Navbar";
 import Profile from "./Pages/Profile";
+import DailyUpdates from "./Pages/DailyUpadates";
+import UserManagement from "./Pages/UserManagement";
 
 export default function App() {
   return (
@@ -28,6 +30,9 @@ export default function App() {
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="*" element={<div>Page Not Found</div>} />
+                    <Route path="daily-updates" element={<DailyUpdates/>} />
+                    <Route path="user-management" element={<UserManagement/>} />
                   </Routes>
                 </div>
               </div>
