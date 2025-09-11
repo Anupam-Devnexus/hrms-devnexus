@@ -14,7 +14,7 @@ import {
 import { NavLink } from "react-router-dom";
 import { FaPowerOff } from "react-icons/fa";
 
-// ✅ Config-driven menu (supports nested submenus)
+//  Config-driven menu (supports nested submenus)
 const menuConfig = {
   common: [
     { label: "Dashboard", icon: <Home size={18} />, path: "/dashboard" },
@@ -57,7 +57,7 @@ const menuConfig = {
       icon: <Settings size={18} />,
       children: [
         { label: "User Management", path: "/dashboard/user-management" },
-        { label: "Attendance", path: "/dashboard/attendance-admin" },
+        // { label: "Attendance", path: "/dashboard/attendance-admin" },
         { label: "Policies", path: "/dashboard/policies" },
         { label: "Leaves", path: "/dashboard/leaves-admin" },
         { label: "Add User", path: "/dashboard/add-user" },
