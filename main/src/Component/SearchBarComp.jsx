@@ -3,6 +3,7 @@ import { FaBell, FaSearch, FaUserCircle } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
 import { Home, User, ClipboardList, CheckSquare, FileText, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { mockNotifications } from "../DataStore/mockNotifications";
 
 const SearchBarComp = () => {
   const navigate = useNavigate();

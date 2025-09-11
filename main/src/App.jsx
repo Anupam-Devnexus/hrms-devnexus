@@ -9,6 +9,10 @@ import Navbar from "./Component/Navbar";
 import Profile from "./Pages/Profile";
 import DailyUpdates from "./Pages/DailyUpadates";
 import UserManagement from "./Pages/UserManagement";
+import AddUser from "./Pages/AddUser";
+import Notifications from "./Pages/Notifications";
+import Attendance from "./Pages/Attendance";
+import MarkAttendance from "./Pages/MarkAttendance";
 
 export default function App() {
   return (
@@ -30,9 +34,13 @@ export default function App() {
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="daily-updates" element={<DailyUpdates />} />
+                    <Route path="user-management" element={<UserManagement />} />
+                    <Route path="add-user" element={<AddUser />} />
+                    <Route path="notifications" element={<Notifications />} />
+                    <Route path="attendance" element={<Attendance />} />
+                    <Route path="mark-attendance/:id" element={<MarkAttendance />} />
                     <Route path="*" element={<div>Page Not Found</div>} />
-                    <Route path="daily-updates" element={<DailyUpdates/>} />
-                    <Route path="user-management" element={<UserManagement/>} />
                   </Routes>
                 </div>
               </div>
