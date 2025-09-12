@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useUserStore } from "../Zustand/GetAllData";
 import EmployeeCard from "../Component/Card/EmployeeCard";
 import { useNavigate } from "react-router-dom";
-
+import { AiFillEdit } from "react-icons/ai";
 const UserManagement = () => {
     const navigate = useNavigate();
     const { allData, fetchAllData, deleteUser, loading, error } = useUserStore();
@@ -51,6 +51,15 @@ const UserManagement = () => {
                                     className="absolute bottom-1 right-2 px-1 py-1 bg-red-600 text-white text-xs rounded-full hover:bg-red-700 transition"
                                 >
                                     Delete
+                                </button>
+                            )}
+                            {/* Delete Button for Admins */}
+                            {currentUserRole === "ADMIN"  && (
+                                <button
+                                    onClick={() => navigate(`/dashboard/edit-profile/${user._id}`)}
+                                    className="absolute top-1 right-1 text-green-800  text-md rounded-full hover:bg-green-700 transition hover:text-white "
+                                >
+                                    <AiFillEdit/>
                                 </button>
                             )}
                         </div>

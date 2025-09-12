@@ -9,7 +9,7 @@ const DailyUpdates = () => {
     const [images, setImages] = useState([]);
     const [preview, setPreview] = useState([]);
 
-    const [showConfirm, setShowConfirm] = useState(false); // confirmation popup state
+    const [showConfirm, setShowConfirm] = useState(false); 
     const [submitting, setSubmitting] = useState(false);
 
     // Handle file selection
@@ -65,7 +65,7 @@ const DailyUpdates = () => {
     };
 
     return (
-        <div className="p-4 min-h-md max-w-full mx-auto bg-gray-100 rounded-xl shadow-md">
+        <div className="p-4 min-h-md max-w-5xl mx-auto bg-gray-100 rounded-xl shadow-md">
             {/* Header */}
             <div className="flex items-center justify-between mb-6 border-b pb-3">
                 <h2 className="text-2xl font-bold text-blue-700">Daily Updates</h2>
@@ -109,7 +109,7 @@ const DailyUpdates = () => {
                 </div>
 
                 {/* Images */}
-                <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
                     <label className="block text-sm ">
                         Upload Images (optional)
                     </label>
@@ -117,23 +117,23 @@ const DailyUpdates = () => {
                         type="file"
                         multiple
                         accept="image/*"
-                                            className="block text-sm border-2 p-2 rounded-2xl cursor-pointer w-1/4 font-medium text-gray-700"
+                        className="block text-sm border-2 p-2 rounded-2xl cursor-pointer w-1/4 font-medium text-gray-700"
 
                         onChange={handleImageChange}
                     />
-                    {preview.length > 0 && (
-                        <div className="flex gap-2 mt-2 flex-wrap">
-                            {preview.map((src, idx) => (
-                                <img
-                                    key={idx}
-                                    src={src}
-                                    alt="preview"
-                                    className="w-full h-full object-cover rounded-lg border"
-                                />
-                            ))}
-                        </div>
-                    )}
                 </div>
+                {preview.length > 0 && (
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                        {preview.map((src, idx) => (
+                            <img
+                                key={idx}
+                                src={src}
+                                alt="preview"
+                                className="w-full h-full object-cover rounded-lg border"
+                            />
+                        ))}
+                    </div>
+                )}
 
                 {/* Submit */}
                 <button

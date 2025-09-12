@@ -13,6 +13,10 @@ import AddUser from "./Pages/AddUser";
 import Notifications from "./Pages/Notifications";
 import Attendance from "./Pages/Attendance";
 import MarkAttendance from "./Pages/MarkAttendance";
+import Team from "./Pages/TL/Team";
+import Leave from "./Pages/Leave";
+import ApplyLeave from "./Pages/ApplyLeave";
+import EditProfile from "./Pages/EditProfile";
 
 export default function App() {
   return (
@@ -40,6 +44,10 @@ export default function App() {
                     <Route path="notifications" element={<Notifications />} />
                     <Route path="attendance" element={<Attendance />} />
                     <Route path="mark-attendance/:id" element={<MarkAttendance />} />
+                    <Route path="team" element={<Team />} />
+                    <Route path="leaves" element={<Leave />} />
+                    <Route path="apply-leave/:id" element={<ApplyLeave />} />
+                    <Route path="edit-profile/:id" element={<EditProfile />} />
                     <Route path="*" element={<div>Page Not Found</div>} />
                   </Routes>
                 </div>

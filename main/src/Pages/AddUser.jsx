@@ -98,9 +98,7 @@ const AddUser = () => {
         {
           method: "POST",
           body: data,
-          headers:{
-             "Content-Type": "application/json",
-          }
+         
         }
       );
 console.log("API Response Status:", response);
