@@ -9,7 +9,7 @@ html,
 body {
     height: 100%;
     font-family: "Inter", Arial, sans-serif;
-    background-color: rgba(2, 4, 8, 0.2);
+   background:  #3d47a3;
     color: #1f2937;
     margin: 0;
     padding: 0;
@@ -63,25 +63,6 @@ button.primary:hover {
     background: #1e40af;
 }
 
-/* input,
-select,
-textarea {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-} */
-
-/* input:focus,
-select:focus,
-textarea:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-} */
-
-/* ===== Table ===== */
 .table {
     width: 100%;
     border-collapse: collapse;

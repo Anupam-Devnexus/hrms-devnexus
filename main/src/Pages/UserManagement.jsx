@@ -24,9 +24,9 @@ const UserManagement = () => {
     console.log(currentUserRole)
 
     return (
-        <div className="flex flex-col min-w-full min-h-screen bg-gray-100 p-4">
+        <div className="flex flex-col min-w-full min-h-screen p-4">
             <section className="flex items-center justify-between flex-wrap gap-6 mb-6">
-                <h2 className="text-2xl font-semibold">User Management</h2>
+                <h2 className="text-2xl text-white font-semibold">User Management</h2>
                 {currentUserRole === "ADMIN"  && (
                     <button
                         onClick={() => navigate("/dashboard/add-user")}

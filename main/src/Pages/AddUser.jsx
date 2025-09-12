@@ -117,7 +117,7 @@ console.log("API Response Status:", response);
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100 p-2">
+    <div className="min-h-screen flex justify-center items-center p-2">
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-5xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Add New Employee</h2>

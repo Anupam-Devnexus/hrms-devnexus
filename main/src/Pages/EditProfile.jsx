@@ -1,263 +1,363 @@
-import React, { useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import menuConfig from "../DataStore/NavBar.json"; // 👈 import nav config
 
-// Validation Schema
-const validationSchema = Yup.object({
-  FirstName: Yup.string().required("First Name is required"),
-  LastName: Yup.string().required("Last Name is required"),
-  Email: Yup.string().email("Invalid email").required("Email is required"),
-  Phone: Yup.string().required("Phone is required"),
-  Address: Yup.string().required("Address is required"),
-  Role: Yup.string().required("Role is required"),
-  Department: Yup.string().required("Department is required"),
-  Designation: Yup.string().required("Designation is required"),
-  EmergencyName: Yup.string().required("Emergency contact name is required"),
-  EmergencyPhone: Yup.string().required("Emergency phone is required"),
-  EmergencyRelation: Yup.string().required("Emergency relation is required"),
-  Dob: Yup.date().required("Date of Birth is required"),
-  JoiningDate: Yup.date().required("Joining Date is required"),
-});
-
-const roles = ["ADMIN", "HR", "EMPLOYEE", "TL"];
-const departments = ["HR", "IT", "Finance", "Sales", "Operations"];
-const designations = ["Manager", "HR", "Developer", "Team Lead", "Intern"];
-const allPermissions = ["View Dashboard", "Manage Users", "Approve Leave", "Access Reports"];
-
-const EditProfile = ({ employee, onUpdate }) => {
+const EditProfile = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [preview, setPreview] = useState(null); // for profile preview
 
-  const handleSubmit = async (values) => {
-    setLoading(true);
+  // Fetch Employee Data
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(
+          `https://hrms-backend2.onrender.com/api/user/${id}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch employee data");
+
+        const data = await res.json();
+        console.log("✅ Employee Data:", data);
+        setEmployee(data.user);
+        setPreview(data.user.Profile_url);
+      } catch (err) {
+        console.error("❌ Error fetching employee:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchEmployee();
+  }, [id]);
+
+  // Handle Input Change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEmployee((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle File Upload (Profile Picture)
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setPreview(URL.createObjectURL(file));
+
+    // upload to Cloudinary or backend
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "your_unsigned_preset"); // 👈 replace
+
     try {
-      const response = await fetch(
-        `https://hrms-backend2.onrender.com/api/update-user/${employee._id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/sahil-kumar/image/upload",
+        { method: "POST", body: formData }
       );
+      const data = await res.json();
+      console.log("✅ Uploaded Image:", data);
 
-      if (!response.ok) throw new Error("Failed to update profile");
-
-      const updatedData = await response.json();
-      if (onUpdate) onUpdate(updatedData);
-      alert("✅ Profile updated successfully");
-    } catch (error) {
-      console.error(error);
-      alert("❌ Error updating profile");
-    } finally {
-      setLoading(false);
+      setEmployee((prev) => ({
+        ...prev,
+        Profile_url: data.secure_url,
+        Profile_Public_id: data.public_id,
+      }));
+    } catch (err) {
+      console.error("❌ Error uploading image:", err);
     }
   };
 
+  // Handle Permission Checkbox Change
+  const handlePermissionToggle = (permission) => {
+    setEmployee((prev) => {
+      const exists = prev.Permissions.includes(permission);
+      return {
+        ...prev,
+        Permissions: exists
+          ? prev.Permissions.filter((p) => p !== permission)
+          : [...prev.Permissions, permission],
+      };
+    });
+  };
+
+  // Get available permissions from role
+  const getRolePermissions = () => {
+    if (!employee?.Role) return [];
+    let role = employee.Role.toLowerCase();
+    let roleTabs = [];
+
+    // merge common + role-specific
+    if (menuConfig.common) {
+      roleTabs = [
+        ...roleTabs,
+        ...menuConfig.common.map((item) => item.label),
+      ];
+    }
+
+    if (menuConfig[role]) {
+      menuConfig[role].forEach((section) => {
+        if (section.label) roleTabs.push(section.label);
+        if (section.children) {
+          roleTabs = [...roleTabs, ...section.children.map((c) => c.label)];
+        }
+      });
+    }
+    return roleTabs;
+  };
+
+  // Handle Form Submit (PATCH)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setSaving(true);
+      const res = await fetch(
+        `https://hrms-backend2.onrender.com/api/user/${id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(employee),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update employee");
+
+      const updated = await res.json();
+      console.log("✅ Updated Employee:", updated);
+      alert("Profile updated successfully!");
+      navigate("/employees");
+    } catch (err) {
+      console.error("❌ Error updating employee:", err);
+      alert("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <p className="p-6">Loading employee data...</p>;
+  if (!employee) return <p className="p-6 text-red-500">Employee not found</p>;
+
+  const rolePermissions = getRolePermissions();
+
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-xl p-6 border border-gray-200">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Edit Profile</h2>
+    <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-semibold mb-4">Edit Profile</h1>
 
-      <Formik
-        initialValues={{
-          FirstName: employee.FirstName || "",
-          LastName: employee.LastName || "",
-          Email: employee.Email || "",
-          Phone: employee.Phone || "",
-          Address: employee.Address || "",
-          Role: employee.Role || "",
-          Department: employee.Department || "",
-          Designation: employee.Designation || "",
-          EmergencyName: employee.EmergencyName || "",
-          EmergencyPhone: employee.EmergencyPhone || "",
-          EmergencyRelation: employee.EmergencyRelation || "",
-          Dob: employee.Dob ? employee.Dob.split("T")[0] : "",
-          JoiningDate: employee.JoiningDate ? employee.JoiningDate.split("T")[0] : "",
-          Permissions:
-            employee.Permissions && employee.Permissions.length > 0
-              ? Array.isArray(employee.Permissions[0])
-                ? employee.Permissions[0]
-                : (() => {
-                    try {
-                      return JSON.parse(employee.Permissions[0]);
-                    } catch {
-                      return [employee.Permissions[0]];
-                    }
-                  })()
-              : [],
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ values, setFieldValue }) => (
-          <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* First Name */}
-            <div>
-              <label className="block text-sm font-medium">First Name</label>
-              <Field
-                name="FirstName"
-                className="mt-1 w-full border rounded-lg px-3 py-2"
-              />
-              <ErrorMessage name="FirstName" className="text-red-500 text-xs" component="div" />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Profile Image */}
+        <div className="flex items-center gap-6">
+          <img
+            src={preview}
+            alt="Profile"
+            className="w-24 h-24 rounded-full object-cover border"
+          />
+          <div>
+            <label className="block text-sm font-medium mb-2">Change Photo</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+              file:rounded-full file:border-0 file:text-sm file:font-semibold
+              file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Employee ID: {employee.EmployeeId}
+            </p>
+          </div>
+        </div>
 
-            {/* Last Name */}
-            <div>
-              <label className="block text-sm font-medium">Last Name</label>
-              <Field
-                name="LastName"
-                className="mt-1 w-full border rounded-lg px-3 py-2"
-              />
-              <ErrorMessage name="LastName" className="text-red-500 text-xs" component="div" />
-            </div>
+        {/* Grid Info */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Basic Info */}
+          <div>
+            <label className="block text-sm font-medium">First Name</label>
+            <input
+              type="text"
+              name="FirstName"
+              value={employee.FirstName || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium">Email</label>
-              <Field
-                type="email"
-                name="Email"
-                className="mt-1 w-full border rounded-lg px-3 py-2"
-              />
-              <ErrorMessage name="Email" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Last Name</label>
+            <input
+              type="text"
+              name="LastName"
+              value={employee.LastName || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium">Phone</label>
-              <Field
-                name="Phone"
-                className="mt-1 w-full border rounded-lg px-3 py-2"
-              />
-              <ErrorMessage name="Phone" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              name="Email"
+              value={employee.Email || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* Address */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium">Address</label>
-              <Field
-                as="textarea"
-                name="Address"
-                rows="2"
-                className="mt-1 w-full border rounded-lg px-3 py-2"
-              />
-              <ErrorMessage name="Address" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Phone</label>
+            <input
+              type="text"
+              name="Phone"
+              value={employee.Phone || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* Role */}
-            <div>
-              <label className="block text-sm font-medium">Role</label>
-              <Field as="select" name="Role" className="mt-1 w-full border rounded-lg px-3 py-2">
-                <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </Field>
-              <ErrorMessage name="Role" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Date of Birth</label>
+            <input
+              type="date"
+              name="Dob"
+              value={employee.Dob ? employee.Dob.split("T")[0] : ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* Department */}
-            <div>
-              <label className="block text-sm font-medium">Department</label>
-              <Field as="select" name="Department" className="mt-1 w-full border rounded-lg px-3 py-2">
-                <option value="">Select Department</option>
-                {departments.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
-                  </option>
-                ))}
-              </Field>
-              <ErrorMessage name="Department" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Joining Date</label>
+            <input
+              type="date"
+              name="JoiningDate"
+              value={employee.JoiningDate ? employee.JoiningDate.split("T")[0] : ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* Designation */}
-            <div>
-              <label className="block text-sm font-medium">Designation</label>
-              <Field as="select" name="Designation" className="mt-1 w-full border rounded-lg px-3 py-2">
-                <option value="">Select Designation</option>
-                {designations.map((desig) => (
-                  <option key={desig} value={desig}>
-                    {desig}
-                  </option>
-                ))}
-              </Field>
-              <ErrorMessage name="Designation" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Department</label>
+            <input
+              type="text"
+              name="Department"
+              value={employee.Department || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* DOB */}
-            <div>
-              <label className="block text-sm font-medium">Date of Birth</label>
-              <Field type="date" name="Dob" className="mt-1 w-full border rounded-lg px-3 py-2" />
-              <ErrorMessage name="Dob" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Designation</label>
+            <input
+              type="text"
+              name="Designation"
+              value={employee.Designation || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
 
-            {/* Joining Date */}
-            <div>
-              <label className="block text-sm font-medium">Joining Date</label>
-              <Field type="date" name="JoiningDate" className="mt-1 w-full border rounded-lg px-3 py-2" />
-              <ErrorMessage name="JoiningDate" className="text-red-500 text-xs" component="div" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium">Role</label>
+            <select
+              name="Role"
+              value={employee.Role || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            >
+              <option value="ADMIN">ADMIN</option>
+              <option value="HR">HR</option>
+              <option value="TL">TL</option>
+              <option value="EMPLOYEE">EMPLOYEE</option>
+            </select>
+          </div>
 
-            {/* Permissions */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium">Permissions</label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {allPermissions.map((perm) => (
-                  <label key={perm} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={values.Permissions.includes(perm)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFieldValue("Permissions", [...values.Permissions, perm]);
-                        } else {
-                          setFieldValue(
-                            "Permissions",
-                            values.Permissions.filter((p) => p !== perm)
-                          );
-                        }
-                      }}
-                    />
-                    <span className="text-sm">{perm}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium">Address</label>
+            <textarea
+              name="Address"
+              value={employee.Address || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
+        </div>
 
-            {/* Emergency Contact */}
-            <div>
-              <label className="block text-sm font-medium">Emergency Contact Name</label>
-              <Field name="EmergencyName" className="mt-1 w-full border rounded-lg px-3 py-2" />
-              <ErrorMessage name="EmergencyName" className="text-red-500 text-xs" component="div" />
-            </div>
+        {/* Permissions Section */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Permissions</label>
+          <div className="grid grid-cols-2 gap-2 border p-3 rounded-lg">
+            {rolePermissions.map((perm) => (
+              <label key={perm} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={employee.Permissions?.includes(perm)}
+                  onChange={() => handlePermissionToggle(perm)}
+                />
+                {perm}
+              </label>
+            ))}
+          </div>
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium">Emergency Phone</label>
-              <Field name="EmergencyPhone" className="mt-1 w-full border rounded-lg px-3 py-2" />
-              <ErrorMessage name="EmergencyPhone" className="text-red-500 text-xs" component="div" />
-            </div>
+        {/* Emergency Info */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium">Emergency Name</label>
+            <input
+              type="text"
+              name="EmergencyName"
+              value={employee.EmergencyName || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Relation</label>
+            <input
+              type="text"
+              name="EmergencyRelation"
+              value={employee.EmergencyRelation || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Emergency Phone</label>
+            <input
+              type="text"
+              name="EmergencyPhone"
+              value={employee.EmergencyPhone || ""}
+              onChange={handleChange}
+              className="mt-1 w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium">Emergency Relation</label>
-              <Field name="EmergencyRelation" className="mt-1 w-full border rounded-lg px-3 py-2" />
-              <ErrorMessage name="EmergencyRelation" className="text-red-500 text-xs" component="div" />
-            </div>
+        {/* Active Status */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="IsActive"
+            checked={employee.IsActive}
+            onChange={(e) =>
+              setEmployee((prev) => ({ ...prev, IsActive: e.target.checked }))
+            }
+          />
+          <label className="text-sm">Active</label>
+        </div>
 
-            {/* Submit */}
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-              >
-                {loading ? "Updating..." : "Update Profile"}
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          {saving ? "Saving..." : "Update Profile"}
+        </button>
+      </form>
     </div>
   );
 };

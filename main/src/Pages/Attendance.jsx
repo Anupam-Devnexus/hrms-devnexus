@@ -37,8 +37,8 @@ const Attendance = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="p-2 bg-gray-100 min-h-screen">
-      <h2 className="text-2xl font-semibold mb-2">Attendance</h2>
+    <div className="p-2 ">
+      <h2 className="text-2xl text-white font-semibold mb-2">Attendance</h2>
 
       {attendanceData.length > 0 ? (
         <div className="overflow-x-auto">

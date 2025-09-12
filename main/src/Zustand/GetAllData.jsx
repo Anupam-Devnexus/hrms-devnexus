@@ -5,7 +5,7 @@ export const useUserStore = create((set) => ({
   loading: false,
   error: null,
 
-  // Fetch all users
+  
   fetchAllData: async () => {
     set({ loading: true, error: null });
     try {
@@ -18,7 +18,7 @@ export const useUserStore = create((set) => ({
     }
   },
 
-  // Add a new user
+ 
   addUser: async (newUser) => {
     set({ loading: true, error: null });
     try {
@@ -31,7 +31,7 @@ export const useUserStore = create((set) => ({
       if (!res.ok) throw new Error("Failed to add user");
       const addedUser = await res.json();
 
-      // Update local store
+
       set((state) => ({
         allData: {
           ...state.allData,

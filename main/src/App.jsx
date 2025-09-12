@@ -17,6 +17,7 @@ import Team from "./Pages/TL/Team";
 import Leave from "./Pages/Leave";
 import ApplyLeave from "./Pages/ApplyLeave";
 import EditProfile from "./Pages/EditProfile";
+import Task from "./Pages/Task";
 
 export default function App() {
   return (
@@ -48,6 +49,7 @@ export default function App() {
                     <Route path="leaves" element={<Leave />} />
                     <Route path="apply-leave/:id" element={<ApplyLeave />} />
                     <Route path="edit-profile/:id" element={<EditProfile />} />
+                    <Route path="tasks" element={<Task/>}/>
                     <Route path="*" element={<div>Page Not Found</div>} />
                   </Routes>
                 </div>
