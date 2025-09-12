@@ -67,19 +67,23 @@ const menuConfig = {
     },
   ],
 };
-
 const Navbar = () => {
-  const user = JSON.parse(localStorage.getItem("authUser"));
-  const role = user?.role || "employee";
+  const user = JSON.parse(localStorage.getItem("authUser")) || {};
+  const role = user.isExists?.Role || user?.isExists?.role || "EMPLOYEE"; 
 
-  // Store which menus are open
   const [openMenus, setOpenMenus] = useState({});
 
   const toggleMenu = (label) => {
     setOpenMenus((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const menuItems = [...menuConfig.common, ...(menuConfig[role] || [])];
+  const menuItems = [...menuConfig.common, ...(menuConfig[role.toLowerCase()] || [])];
+
+
+  const displayName = user?.isExists.FirstName || user?.Email || "User";
+  const Email = user?.isExists.Email || "NoEmail";
+  const initial = displayName.charAt(0).toUpperCase();
+
 
   return (
     <div className="w-64 h-screen bg-gray-800 text-white fixed left-0 top-0 flex flex-col">
@@ -167,10 +171,10 @@ const Navbar = () => {
       <div className="p-4 border-t border-gray-700 flex items-center justify-between">
         <div className="flex gap-3 items-center">
           <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
-            {user.username.charAt(0).toUpperCase()}
+           <img src={user?.isExists?.Profile_url} alt={user?.isExists?.FirstName} className="rounded-full" />
           </div>
           <div>
-            <p className="font-medium">{user.username}</p>
+            <p className="font-medium">{displayName}</p>
             <p className="text-xs text-gray-400">{role.toUpperCase()}</p>
           </div>
         </div>
@@ -188,5 +192,6 @@ const Navbar = () => {
     </div>
   );
 };
+
 
 export default Navbar;

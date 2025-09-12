@@ -6,8 +6,9 @@ const Profile = () => {
   const [currentUser, setCurrentUser] = useState(null);
 
   const authUser = JSON.parse(localStorage.getItem("authUser"));
-  const username = authUser?.username;
-  const role = authUser?.role?.toUpperCase() || "EMPLOYEE";
+  // console.log("Auth User from localStorage:", authUser.isExists);
+  const username = authUser.isExists?.FirstName;
+  const role = authUser.isExists?.Role?.toUpperCase() || "EMPLOYEE";
 
   useEffect(() => {
     fetchAllData();

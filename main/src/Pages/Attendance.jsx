@@ -8,36 +8,40 @@ const Attendance = () => {
   const navigate = useNavigate();
 
   const authUser = JSON.parse(localStorage.getItem("authUser")) || {};
-  const username = authUser?.username;
-  const role = authUser?.role?.toUpperCase() || "EMPLOYEE";
+  const firstName = authUser?.isExists?.FirstName || "";
+  const email = authUser?.isExists?.Email || "";
+  const role = authUser?.isExists?.Role?.toUpperCase() || "EMPLOYEE";
 
   useEffect(() => {
     fetchAllData();
   }, []);
-  console.log("All Data:", allData);
 
   useEffect(() => {
     if (allData?.data) {
       const users = Object.values(allData.data).flat();
 
       if (role === "ADMIN" || role === "HR") {
+        // Admin/HR can see everyone
         setAttendanceData(users);
       } else {
+        // Normal user → match by name + role (or email + role as fallback)
         const user = users.find(
           (u) =>
-            u.FirstName.toLowerCase() === username?.toLowerCase() ||
-            u.Email.toLowerCase() === username?.toLowerCase()
+            (u.FirstName?.toLowerCase() === firstName.toLowerCase() &&
+              u.Role?.toUpperCase() === role) ||
+            (u.Email?.toLowerCase() === email.toLowerCase() &&
+              u.Role?.toUpperCase() === role)
         );
         setAttendanceData(user ? [user] : []);
       }
     }
-  }, [allData, role, username]);
+  }, [allData, role, firstName, email]);
 
   if (loading) return <div>Loading attendance...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="p-2 ">
+    <div className="p-2">
       <h2 className="text-2xl text-white font-semibold mb-2">Attendance</h2>
 
       {attendanceData.length > 0 ? (
@@ -82,7 +86,9 @@ const Attendance = () => {
                   {(role === "ADMIN" || role === "HR") && (
                     <td className="px-4 py-2">
                       <button
-                        onClick={() => navigate(`/dashboard/mark-attendance/${user._id}`)}
+                        onClick={() =>
+                          navigate(`/dashboard/mark-attendance/${user._id}`)
+                        }
                         className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition"
                       >
                         Mark Attendance

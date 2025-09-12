@@ -4,12 +4,13 @@ const DailyUpdates = () => {
     const user = JSON.parse(localStorage.getItem("authUser")) || {};
     const { username, role } = user;
 
+    const token = user.accessToken;
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [images, setImages] = useState([]);
     const [preview, setPreview] = useState([]);
 
-    const [showConfirm, setShowConfirm] = useState(false); 
+    const [showConfirm, setShowConfirm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
     // Handle file selection
@@ -35,13 +36,13 @@ const DailyUpdates = () => {
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", description);
-        formData.append("role", role);
-        formData.append("username", username);
-
         images.forEach((img) => formData.append("images", img));
 
         try {
-            const res = await fetch("https://your-api-endpoint.com/daily-updates", {
+            const res = await fetch("https://hrms-backend2.onrender.com/api", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
                 method: "POST",
                 body: formData,
             });
@@ -71,8 +72,8 @@ const DailyUpdates = () => {
                 <h2 className="text-2xl font-bold text-blue-700">Daily Updates</h2>
                 <p className="text-gray-600">
                     Logged in as{" "}
-                    <span className="font-semibold text-gray-800">{username}</span> (
-                    {role})
+                    <span className="font-semibold text-gray-800">{user?.isExists?.FirstName}</span> (
+                    {user?.isExists?.Role})
                 </p>
             </div>
 

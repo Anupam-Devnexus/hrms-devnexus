@@ -44,6 +44,8 @@ export default function Dashboard() {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
   const role = authUser?.role || "employee";
 
+  console.log(role)
+
   const {allData, fetchAllData} = useUserStore();
 
   useEffect(() => {

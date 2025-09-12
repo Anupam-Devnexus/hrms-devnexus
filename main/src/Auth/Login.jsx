@@ -6,11 +6,11 @@ export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "employee",
+    role: "EMPLOYEE"
   });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,15 +24,25 @@ export default function Login() {
     setLoading(true);
 
     try {
+      console.log("Sending request:", {
+        Email: formData.email,
+        Password: formData.password,
+        Role: formData.role,
+      });
+
       const res = await fetch(
         "https://hrms-backend2.onrender.com/api/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            Email: formData.email,
+            Password: formData.password,
+            Role: formData.role,
+          }),
         }
       );
-      console.log("Response Status:", res);
+      console.log("Response status:", res);
 
       const data = await res.json();
 
@@ -41,6 +51,7 @@ export default function Login() {
         setLoading(false);
         return;
       }
+      console.log("Login successful:", data);
 
       localStorage.setItem("authUser", JSON.stringify(data));
       navigate("/dashboard");
@@ -78,10 +89,10 @@ export default function Login() {
           onChange={handleChange}
           className="w-full mb-4 px-3 py-2 rounded-lg border border-white/50 bg-white/40 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
-          <option value="hr">HR</option>
-          <option value="admin">Admin</option>
-          <option value="tl">TL</option>
-          <option value="employee">Employee</option>
+          <option value="HR">HR</option>
+          <option value="ADMIN">Admin</option>
+          <option value="TL">TL</option>
+          <option value="EMPLOYEE">Employee</option>
         </select>
 
         {/* Email Input */}
@@ -119,8 +130,9 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full bg-blue-600/90 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md ${loading ? "cursor-not-allowed opacity-70" : ""
-            }`}
+          className={`w-full bg-blue-600/90 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md ${
+            loading ? "cursor-not-allowed opacity-70" : ""
+          }`}
         >
           {loading ? "Logging in..." : "Login"}
         </button>
