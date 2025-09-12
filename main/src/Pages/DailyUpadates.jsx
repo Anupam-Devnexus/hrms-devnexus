@@ -5,6 +5,7 @@ const DailyUpdates = () => {
     const { username, role } = user;
 
     const token = user.accessToken;
+    console.log(token)
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [images, setImages] = useState([]);
@@ -36,17 +37,17 @@ const DailyUpdates = () => {
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", description);
-        images.forEach((img) => formData.append("images", img));
+        images.forEach((img) => formData.append("img", img));
 
         try {
-            const res = await fetch("https://hrms-backend2.onrender.com/api", {
+            const res = await fetch("https://hrms-backend2.onrender.com/api/dailyupdates/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
                 method: "POST",
                 body: formData,
             });
-
+            console.log(res)
             if (res.ok) {
                 alert("Update posted successfully!");
                 setTitle("");
