@@ -5,7 +5,7 @@ const DailyUpdates = () => {
     const { username, role } = user;
 
     const token = user.accessToken;
-    console.log(token)
+    // console.log(token)
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [images, setImages] = useState([]);

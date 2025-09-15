@@ -27,14 +27,16 @@ const menuConfig = {
   ],
 
   tl: [
+     { label: "Sales", icon: <FileText size={18} />, path: "/dashboard/sales" },
     {
       label: "Team",
       icon: <Users size={18} />,
       children: [
         { label: "View Team", path: "/dashboard/team" },
-        { label: "Create Team", path: "/dashboard/create-team" },
+        // { label: "Create Team", path: "/dashboard/create-team" },
       ],
     },
+   
   ],
 
   hr: [
@@ -69,7 +71,7 @@ const menuConfig = {
 };
 const Navbar = () => {
   const user = JSON.parse(localStorage.getItem("authUser")) || {};
-  const role = user.isExists?.Role || user?.isExists?.role || "EMPLOYEE"; 
+  const role = user.isExists?.Role || user?.isExists?.role || "EMPLOYEE";
 
   const [openMenus, setOpenMenus] = useState({});
 
@@ -133,10 +135,9 @@ const Navbar = () => {
                       key={cidx}
                       to={child.path}
                       className={({ isActive }) =>
-                        `px-3 py-1 rounded-md text-sm transition-all duration-200 ${
-                          isActive
-                            ? "bg-blue-600 text-white"
-                            : "hover:bg-gray-700 hover:text-blue-400"
+                        `px-3 py-1 rounded-md text-sm transition-all duration-200 ${isActive
+                          ? "bg-blue-600 text-white"
+                          : "hover:bg-gray-700 hover:text-blue-400"
                         }`
                       }
                     >
@@ -151,10 +152,9 @@ const Navbar = () => {
               key={idx}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-gray-700 hover:text-blue-400"
+                `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActive
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-gray-700 hover:text-blue-400"
                 }`
               }
             >
@@ -170,8 +170,8 @@ const Navbar = () => {
       {/* Footer - User Info & Logout */}
       <div className="p-4 border-t border-gray-700 flex items-center justify-between">
         <div className="flex gap-3 items-center">
-          <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
-           <img src={user?.isExists?.Profile_url} alt={user?.isExists?.FirstName} className="rounded-full" />
+          <div className="rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
+            <img src={user?.isExists?.Profile_url} alt={user?.isExists?.FirstName} className="w-10 h-10 rounded-full" />
           </div>
           <div>
             <p className="font-medium">{displayName}</p>
@@ -184,7 +184,7 @@ const Navbar = () => {
             localStorage.removeItem("authUser");
             window.location.href = "/";
           }}
-          className="bg-red-600 hover:bg-red-700 transition-all duration-200 text-white p-2 rounded-lg text-lg font-medium flex items-center justify-center"
+          className="bg-red-600 hover:bg-red-700 transition-all duration-200 text-white  rounded-full text-md font-medium flex items-center justify-center"
         >
           <FaPowerOff />
         </button>
