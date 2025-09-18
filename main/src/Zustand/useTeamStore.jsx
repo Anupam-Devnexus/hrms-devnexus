@@ -6,6 +6,8 @@ export const useTeamStore = create((set, get) => ({
   teamDescription: "",
   showMyTeam: false,
 
+
+
   // toggle employee selection
   toggleMember: (id) => {
     const { selectedTeam } = get();
@@ -34,22 +36,30 @@ export const useTeamStore = create((set, get) => ({
   saveTeam: async () => {
     const { selectedTeam, teamName, teamDescription } = get();
     if (!teamName.trim()) {
-      alert("⚠️ Please enter a team name.");
+      alert("Please enter a team name.");
       return;
     }
-
+    const token = JSON.parse(localStorage.getItem("authUser")).accessToken;
+    const id = JSON.parse(localStorage.getItem("authUser")).user._id;
+    console.log(token)
     try {
-      const response = await fetch("https://your-backend.com/api/teams", {
+      const response = await fetch("https://hrms-backend-9qzj.onrender.com/api/team/create-team", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           name: teamName,
           description: teamDescription,
           members: selectedTeam,
+          lead: id
         }),
       });
 
       if (!response.ok) throw new Error("Failed to save team");
+
+      console.log(response)
 
       const data = await response.json();
       console.log("✅ Team saved:", data);

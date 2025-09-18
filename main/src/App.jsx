@@ -20,7 +20,11 @@ import EditProfile from "./Pages/EditProfile";
 import Task from "./Pages/Task";
 import Sales from "./Pages/TL/Sales";
 import Updates from "./Pages/TL/UpdateSales"
-
+import Policies from "./Pages/Policies";
+import AddTask from "./Pages/AddTask";
+import Teams from "./Pages/Team";
+import LeavesApproval from "./Pages/LeavesApproval";
+import Adminisration from "./Pages/Adminisration";
 export default function App() {
   return (
     <Router>
@@ -47,13 +51,18 @@ export default function App() {
                     <Route path="notifications" element={<Notifications />} />
                     <Route path="attendance" element={<Attendance />} />
                     <Route path="mark-attendance/:id" element={<MarkAttendance />} />
-                    <Route path="team" element={<Team />} />
+                    <Route path="create-team" element={<Team />} />
                     <Route path="leaves" element={<Leave />} />
-                    <Route path="apply-leave/:id" element={<ApplyLeave />} />
+                    <Route path="apply-leave" element={<ApplyLeave />} />
                     <Route path="edit-profile/:id" element={<EditProfile />} />
                     <Route path="tasks" element={<Task />} />
                     <Route path="sales" element={<Sales />} />
                     <Route path="sales-updates" element={<Updates />} />
+                    <Route path="policies" element={<Policies />} />
+                    <Route path="add-task" element={<AddTask />} />
+                    <Route path="teams" element={<Teams/>} />
+                    <Route path = "/leaves-approval" element={<LeavesApproval/>}/>
+                    <Route path="/administration" element={<Adminisration/>}/>
                     <Route path="*" element={<div>Page Not Found</div>} />
                   </Routes>
                 </div>

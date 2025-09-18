@@ -14,7 +14,7 @@ const UserManagement = () => {
     console.log("All User Data:", allData);
 
     const authUser = JSON.parse(localStorage.getItem("authUser"));
-    const currentUserRole = authUser?.isExists?.Role?.toUpperCase();
+    const currentUserRole = authUser?.user?.Role?.toUpperCase();
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;

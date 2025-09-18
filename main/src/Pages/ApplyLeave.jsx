@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
+// --------------------
+// Validation Schema
+// --------------------
 const validationSchema = Yup.object({
     type: Yup.string().required("Leave type is required"),
     fromDate: Yup.date().required("Start date is required"),
@@ -13,7 +16,13 @@ const validationSchema = Yup.object({
 
 const ApplyLeave = () => {
     const authUser = JSON.parse(localStorage.getItem("authUser"));
+    const token = authUser?.accessToken;
 
+    const [loading, setLoading] = useState(false);
+
+    // --------------------
+    // Initial Form Values
+    // --------------------
     const initialValues = {
         type: "",
         fromDate: "",
@@ -21,66 +30,84 @@ const ApplyLeave = () => {
         reason: "",
     };
 
+    // --------------------
+    // Submit Handler
+    // --------------------
     const handleSubmit = async (values, { resetForm }) => {
         const payload = {
-            EmployeeId: authUser?.EmployeeId,
-            Name: `${authUser?.FirstName || ""} ${authUser?.LastName || ""}`,
-            Role: authUser?.role || "Employee",
-            Department: authUser?.Department || "N/A",
-            Email: authUser?.Email,
-            LeaveDetails: {
-                Type: values.type,
-                FromDate: values.fromDate,
-                ToDate: values.toDate,
-                Reason: values.reason,
-                Status: "Pending", // default
-                AppliedOn: new Date().toISOString(),
-            },
+            leaveType: values.type,
+            from: values.fromDate,
+            to: values.toDate,
+            reason: values.reason,
         };
 
         try {
+            setLoading(true);
             console.log("📤 Posting Leave Payload:", payload);
 
-            // ✅ Replace with your backend API endpoint
-            const res = await fetch("https://your-backend.com/api/apply-leave", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-
-            if (!res.ok) throw new Error("Failed to submit leave");
+            const res = await fetch(
+                "https://hrms-backend-9qzj.onrender.com/api/leave/apply-leave",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
             const data = await res.json();
-            console.log("✅ Leave Applied Successfully:", data);
+            console.log("📥 Backend Response:", data);
+
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to submit leave");
+            }
 
             resetForm();
-            alert("Leave application submitted successfully!");
+            alert("✅ Leave application submitted successfully!");
         } catch (err) {
             console.error("❌ Error applying leave:", err);
-            alert("Error submitting leave application. Try again.");
+            alert(err.message || "Error submitting leave application. Try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
+    // --------------------
+    // If user is not logged in
+    // --------------------
+    if (!authUser) {
+        return (
+            <div className="p-6 text-center text-red-500 font-semibold">
+                You must be logged in to apply for leave.
+            </div>
+        );
+    }
+
     return (
         <div className="p-2 max-w-6xl mx-auto">
+            {/* Header */}
             <div className="flex items-center justify-between mb-4">
-
-                <h1 className="text-3xl font-bold text-gray-800  text-center">
-                    📝 Apply for Leave
+                <h1 className="text-3xl font-bold text-gray-100 text-center">
+                    Apply for Leave
                 </h1>
-                <button className="bg-blue-500 text-white"
+                <button
+                    className="bg-blue-500 text-white px-4 py-1 rounded-lg hover:bg-blue-600 transition"
                     onClick={() => window.history.back()}
-                >Back</button>
+                >
+                    Back
+                </button>
             </div>
 
-            {/* User Info Card */}
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-5 rounded-xl shadow-lg mb-6">
+            {/* User Info */}
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-5 grid grid-cols-1 md:grid-cols-2 rounded-xl shadow-lg mb-6">
                 <h2 className="text-lg font-semibold">Employee Details</h2>
-                <p>👤 {authUser?.Name} {authUser?.LastName}</p>
-                <p>📧 {authUser?.Email}</p>
-                <p>🏢 {authUser?.Department}</p>
-                <p>🎫 ID: {authUser?.EmployeeId}</p>
-                <p>🛡 Role: {authUser?.role?.toUpperCase()}</p>
+                <p>👤 {authUser?.user?.FirstName} {authUser?.user?.LastName}</p>
+                <p>📧 {authUser?.user?.Email}</p>
+                <p>🏢 {authUser?.user?.Department}</p>
+                <p>🎫 ID: {authUser?.user?.EmployeeId}</p>
+                <p>🛡 Role: {authUser?.user?.Role?.toUpperCase()}</p>
             </div>
 
             {/* Leave Form */}
@@ -103,10 +130,12 @@ const ApplyLeave = () => {
                                     className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
                                 >
                                     <option value="">Select leave type</option>
-                                    <option value="Casual Leave">Casual Leave</option>
-                                    <option value="Sick Leave">Sick Leave</option>
-                                    <option value="Earned Leave">Earned Leave</option>
-                                    <option value="Work From Home">Work From Home</option>
+                                    <option value="Sick">Sick</option>
+                                    <option value="Casual">Casual</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Unpaid">Unpaid</option>
+                                    <option value="Maternity">Maternity</option>
+                                    <option value="Other">Other</option>
                                 </Field>
                                 <ErrorMessage
                                     name="type"
@@ -172,10 +201,13 @@ const ApplyLeave = () => {
                             <div className="flex justify-center">
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg shadow-md transition font-medium"
+                                    disabled={isSubmitting || loading}
+                                    className={`px-6 py-2 rounded-lg shadow-md transition font-medium text-white ${loading
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-indigo-600 hover:bg-indigo-700"
+                                        }`}
                                 >
-                                    {isSubmitting ? "Submitting..." : "Apply Leave"}
+                                    {loading ? "Submitting..." : "Apply Leave"}
                                 </button>
                             </div>
                         </Form>

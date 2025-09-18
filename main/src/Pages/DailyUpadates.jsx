@@ -73,8 +73,8 @@ const DailyUpdates = () => {
                 <h2 className="text-2xl font-bold text-blue-700">Daily Updates</h2>
                 <p className="text-gray-600">
                     Logged in as{" "}
-                    <span className="font-semibold text-gray-800">{user?.isExists?.FirstName}</span> (
-                    {user?.isExists?.Role})
+                    <span className="font-semibold text-gray-800">{user?.user?.FirstName}</span> (
+                    {user?.user?.Role})
                 </p>
             </div>
 

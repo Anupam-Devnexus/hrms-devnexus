@@ -6,9 +6,9 @@ const Profile = () => {
   const [currentUser, setCurrentUser] = useState(null);
 
   const authUser = JSON.parse(localStorage.getItem("authUser"));
-  // console.log("Auth User from localStorage:", authUser.isExists);
-  const username = authUser.isExists?.FirstName;
-  const role = authUser.isExists?.Role?.toUpperCase() || "EMPLOYEE";
+  // console.log("Auth User from localStorage:", authUser.user);
+  const username = authUser.user?.FirstName;
+  const role = authUser.user?.Role?.toUpperCase() || "EMPLOYEE";
 
   useEffect(() => {
     fetchAllData();
@@ -43,9 +43,9 @@ const Profile = () => {
             }
           })()
       : [];
-
+// console.log(currentUser)
   return (
-    <div className="flex justify-center items-center py-4 px-4">
+    <div className="flex justify-center items-center py-1 px-1">
       <div className="w-full max-w-5xl bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
         {/* Header */}
         <div className="relative h-40 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">

@@ -9,7 +9,7 @@ export const useUserStore = create((set) => ({
   fetchAllData: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch("https://hrms-backend2.onrender.com/api/user");
+      const res = await fetch("https://hrms-backend-9qzj.onrender.com/api/user");
       if (!res.ok) throw new Error("Failed to fetch users");
       const data = await res.json();
       set({ allData: data, loading: false });
@@ -22,7 +22,7 @@ export const useUserStore = create((set) => ({
   addUser: async (newUser) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch("https://hrms-backend2.onrender.com/api/user", {
+      const res = await fetch("https://hrms-backend-9qzj.onrender.com/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser),
@@ -62,7 +62,7 @@ export const useUserStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const res = await fetch(
-        `https://hrms-backend2.onrender.com/api/delete-user/${userId}`,
+        `https://hrms-backend-9qzj.onrender.com/api/delete-user/${userId}`,
         { method: "DELETE" }
       );
       if (!res.ok) throw new Error("Failed to delete user");

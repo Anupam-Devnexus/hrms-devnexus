@@ -8,9 +8,9 @@ const Attendance = () => {
   const navigate = useNavigate();
 
   const authUser = JSON.parse(localStorage.getItem("authUser")) || {};
-  const firstName = authUser?.isExists?.FirstName || "";
-  const email = authUser?.isExists?.Email || "";
-  const role = authUser?.isExists?.Role?.toUpperCase() || "EMPLOYEE";
+  const firstName = authUser?.user?.FirstName || "";
+  const email = authUser?.user?.Email || "";
+  const role = authUser?.user?.Role?.toUpperCase() || "EMPLOYEE";
 
   useEffect(() => {
     fetchAllData();

@@ -1,15 +1,13 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import data from "../DataStore/DashCard.json";
 import SearchBarComp from '../Component/SearchBarComp';
 import DashCard from '../Component/Card/DashCard';
 import RoleData from "../DataStore/complete.json"
-import {useUserStore} from "../Zustand/GetAllData"
+import { useUserStore } from "../Zustand/GetAllData"
 import {
   FaUsers,
   FaDollarSign,
   FaCheckCircle,
-  // FaFileText,
-  // FaBarChart,
   FaCalendar,
   FaCheckSquare,
   FaSun,
@@ -44,17 +42,17 @@ export default function Dashboard() {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
   const role = authUser?.role || "employee";
 
-  console.log(role)
+  // console.log(role)
 
-  const {allData, fetchAllData} = useUserStore();
+  const { allData, fetchAllData } = useUserStore();
 
   useEffect(() => {
     fetchAllData();
   }, []);
-  console.log("All User Data:", allData.data);
+  // console.log("All User Data:", allData.data);
 
 
-// console.log("Data:", RoleData);
+  // console.log("Data:", RoleData);
 
 
   // Get cards for current role

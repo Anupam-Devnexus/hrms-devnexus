@@ -21,22 +21,23 @@ const menuConfig = {
     { label: "Profile", icon: <User size={18} />, path: "/dashboard/profile" },
     { label: "Attendance", icon: <ClipboardList size={18} />, path: "/dashboard/attendance" },
     { label: "Leaves", icon: <CheckSquare size={18} />, path: "/dashboard/leaves" },
-    { label: "Tasks", icon: <ClipboardList size={18} />, path: "/dashboard/tasks" },
+    { label: "Teams", icon: <ClipboardList size={18} />, path: "/dashboard/teams" },
     { label: "Notifications", icon: <Bell size={18} />, path: "/dashboard/notifications" },
     { label: "Daily Updates", icon: <FileText size={18} />, path: "/dashboard/daily-updates" },
   ],
 
   tl: [
-     { label: "Sales", icon: <FileText size={18} />, path: "/dashboard/sales" },
+    { label: "Sales", icon: <FileText size={18} />, path: "/dashboard/sales" },
+    { label: "Tasks", icon: <ClipboardList size={18} />, path: "/dashboard/tasks" },
+
     {
-      label: "Team",
+      label: "create-team",
       icon: <Users size={18} />,
       children: [
-        { label: "View Team", path: "/dashboard/team" },
-        // { label: "Create Team", path: "/dashboard/create-team" },
+        { label: "Create Team", path: "/dashboard/create-team" },
       ],
     },
-   
+
   ],
 
   hr: [
@@ -71,7 +72,7 @@ const menuConfig = {
 };
 const Navbar = () => {
   const user = JSON.parse(localStorage.getItem("authUser")) || {};
-  const role = user.isExists?.Role || user?.isExists?.role || "EMPLOYEE";
+  const role = user.user?.Role || user?.user?.role || "EMPLOYEE";
 
   const [openMenus, setOpenMenus] = useState({});
 
@@ -82,15 +83,15 @@ const Navbar = () => {
   const menuItems = [...menuConfig.common, ...(menuConfig[role.toLowerCase()] || [])];
 
 
-  const displayName = user?.isExists.FirstName || user?.Email || "User";
-  const Email = user?.isExists.Email || "NoEmail";
+  const displayName = user?.user?.FirstName || user?.user?.Email || "User";
+  const Email = user?.user.Email || "NoEmail";
   const initial = displayName.charAt(0).toUpperCase();
 
 
   return (
     <div className="w-64 h-screen bg-gray-800 text-white fixed left-0 top-0 flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-3 border-b border-gray-700">
         <div className="flex items-center gap-3">
           <img
             src="https://res.cloudinary.com/dt4ohfuwc/image/upload/v1750671563/DevNexus_qqt3p3.png"
@@ -105,13 +106,13 @@ const Navbar = () => {
       </div>
 
       {/* Scrollable Menu */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {menuItems.map((item, idx) =>
           item.children ? (
             <div key={idx} className="space-y-1">
               <button
                 onClick={() => toggleMenu(item.label)}
-                className="flex items-center justify-between w-full px-3 py-2 rounded-lg 
+                className="flex items-center justify-between w-full px-2 py-2 rounded-lg 
                            hover:bg-gray-700 transition-all duration-200"
               >
                 <div className="flex items-center gap-3">
@@ -135,7 +136,7 @@ const Navbar = () => {
                       key={cidx}
                       to={child.path}
                       className={({ isActive }) =>
-                        `px-3 py-1 rounded-md text-sm transition-all duration-200 ${isActive
+                        `px-2 py-1 rounded-md text-sm transition-all duration-200 ${isActive
                           ? "bg-blue-600 text-white"
                           : "hover:bg-gray-700 hover:text-blue-400"
                         }`
@@ -171,7 +172,7 @@ const Navbar = () => {
       <div className="p-4 border-t border-gray-700 flex items-center justify-between">
         <div className="flex gap-3 items-center">
           <div className="rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
-            <img src={user?.isExists?.Profile_url} alt={user?.isExists?.FirstName} className="w-10 h-10 rounded-full" />
+            <img src={user?.user?.Profile_url} alt={user?.user?.FirstName} className="w-10 h-10 rounded-full" />
           </div>
           <div>
             <p className="font-medium">{displayName}</p>

@@ -22,7 +22,6 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       console.log("Sending request:", {
         Email: formData.email,
@@ -31,7 +30,7 @@ export default function Login() {
       });
 
       const res = await fetch(
-        "https://hrms-backend2.onrender.com/api/login",
+        "https://hrms-backend-9qzj.onrender.com/api/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -130,9 +129,8 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full bg-blue-600/90 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md ${
-            loading ? "cursor-not-allowed opacity-70" : ""
-          }`}
+          className={`w-full bg-blue-600/90 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md ${loading ? "cursor-not-allowed opacity-70" : ""
+            }`}
         >
           {loading ? "Logging in..." : "Login"}
         </button>

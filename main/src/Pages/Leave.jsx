@@ -1,154 +1,160 @@
-import React from "react";
-import Data from "../DataStore/leaves.json";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLeavePersonalDetails } from "../Zustand/GetPersonalLeaveDetails";
+import PersonalLeaveCard from "../Component/Card/PersonalLeaveCard";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+
 const Leave = () => {
-    const authUser = JSON.parse(localStorage.getItem("authUser"));
-    const navigate = useNavigate();
-    console.log("", Data)
-    const currentUser = Data.leaves.find(
-  (u) =>
-    u.Name.toLowerCase().includes(authUser?.username?.toLowerCase()) ||
-    u.Email?.toLowerCase().includes(authUser?.username?.toLowerCase())
-);
-    
+  const navigate = useNavigate();
 
-    if (!currentUser) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-red-500 font-semibold text-lg">
-                    No leave data found for this user.
-                </p>
-            </div>
-        );
-    }
+  const { personalLeave, loading, error, fetchPersonalDetails } =
+    useLeavePersonalDetails();
 
-    const { LeaveBalance, LeaveHistory } = currentUser;
+  const authuser = JSON.parse(localStorage.getItem("authUser"));
+  const total_leave = 14;
 
-    return (
-        <div className="p-4 max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
+  useEffect(() => {
+    fetchPersonalDetails();
+  }, [fetchPersonalDetails]);
 
-                {/* Header */}
-                <section>
+  // ✅ Calculate approved leave days
+  const approvedDays = useMemo(() => {
+    if (!personalLeave?.leaves) return 0;
+    return personalLeave.leaves
+      .filter((leave) => leave.status === "Approved")
+      .reduce((sum, leave) => sum + (leave.days || 0), 0);
+  }, [personalLeave]);
 
-                    <h1 className="text-3xl flex items-center gap-4 font-bold text-gray-800 text-center">
-                        Leave Dashboard
-                        <span className="block text-lg text-blue-800 font-medium">
-                            {currentUser.Name} — {currentUser.Role}
-                        </span>
-                    </h1>
-                </section>
-                { authUser.role !== "admin" && <button className="p-2 bg-blue-500 text-white rounded-md"
-                    onClick={() => {
+  const remainingDays = Math.max(total_leave - approvedDays, 0);
 
-                        navigate(`/dashboard/apply-leave/${currentUser.EmployeeId}`);
-                    }}
-                >Apply Leave</button>}
-            </div>
+  // ✅ Data for chart
+  const leaveData = [
+    { name: "Taken", value: approvedDays },
+    { name: "Remaining", value: remainingDays },
+  ];
 
-            {/* Leave Balance Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                <div className="flex items-center justify-between bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl p-6 shadow-lg">
-                    <h3 className="text-sm uppercase tracking-wide">Total Allowed</h3>
-                    <p className="text-3xl font-bold">{LeaveBalance.TotalAllowed}</p>
-                </div>
-                <div className="flex items-center justify-between bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-2xl p-6 shadow-lg">
-                    <h3 className="text-sm uppercase tracking-wide">Used</h3>
-                    <p className="text-3xl font-bold">{LeaveBalance.Used}</p>
-                </div>
-                <div className="flex items-center justify-between bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl p-6 shadow-lg">
-                    <h3 className="text-sm uppercase tracking-wide">Remaining</h3>
-                    <p className="text-3xl font-bold">{LeaveBalance.Remaining}</p>
-                </div>
-            </div>
+  const COLORS = ["#EF4444", "#22C55E"]; // red, green
 
-            {/* Last Leave Taken */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg mb-8">
-                <h2 className="text-xl font-semibold mb-4">🗓 Last Leave Taken</h2>
-                {LeaveBalance.LastLeaveTaken ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
-                        <p>
-                            <span className="font-semibold">Type:</span>{" "}
-                            {LeaveBalance.LastLeaveTaken.Type}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Dates:</span>{" "}
-                            {LeaveBalance.LastLeaveTaken.FromDate} →{" "}
-                            {LeaveBalance.LastLeaveTaken.ToDate}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Reason:</span>{" "}
-                            {LeaveBalance.LastLeaveTaken.Reason}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Status:</span>{" "}
-                            <span
-                                className={`px-3 py-1 text-xs font-medium rounded-full ${LeaveBalance.LastLeaveTaken.Status === "Approved"
-                                    ? "bg-green-100 text-green-700"
-                                    : LeaveBalance.LastLeaveTaken.Status === "Rejected"
-                                        ? "bg-red-100 text-red-700"
-                                        : "bg-yellow-100 text-yellow-700"
-                                    }`}
-                            >
-                                {LeaveBalance.LastLeaveTaken.Status}
-                            </span>
-                        </p>
-                    </div>
-                ) : (
-                    <p className="text-gray-400">No leave taken yet.</p>
-                )}
-            </div>
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      {/* Header */}
+      <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+        <h1 className="text-gray-800 font-semibold text-lg">
+          Leave Dashboard for{" "}
+          <span className="text-2xl text-blue-600 font-bold">
+            {authuser?.user?.FirstName}
+          </span>
+        </h1>
 
-            {/* Leave History */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <h2 className="text-xl font-semibold mb-4">📋 Leave History</h2>
-                {LeaveHistory && LeaveHistory.length > 0 ? (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left border-collapse">
-                            <thead>
-                                <tr className="bg-gray-100 text-gray-700 uppercase text-xs">
-                                    <th className="p-3">Leave ID</th>
-                                    <th className="p-3">Type</th>
-                                    <th className="p-3">From</th>
-                                    <th className="p-3">To</th>
-                                    <th className="p-3">Reason</th>
-                                    <th className="p-3">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {LeaveHistory.map((leave, idx) => (
-                                    <tr
-                                        key={idx}
-                                        className="border-b hover:bg-gray-50 transition"
-                                    >
-                                        <td className="p-3 font-medium">{leave.LeaveId}</td>
-                                        <td className="p-3">{leave.Type}</td>
-                                        <td className="p-3">{leave.FromDate}</td>
-                                        <td className="p-3">{leave.ToDate}</td>
-                                        <td className="p-3">{leave.Reason}</td>
-                                        <td className="p-3">
-                                            <span
-                                                className={`px-3 py-1 text-xs font-medium rounded-full ${leave.Status === "Approved"
-                                                    ? "bg-green-100 text-green-700"
-                                                    : leave.Status === "Rejected"
-                                                        ? "bg-red-100 text-red-700"
-                                                        : "bg-yellow-100 text-yellow-700"
-                                                    }`}
-                                            >
-                                                {leave.Status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <p className="text-gray-400">No leave history available.</p>
-                )}
-            </div>
+        <button
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition"
+          onClick={() => navigate("/dashboard/apply-leave")}
+        >
+          Apply Leave
+        </button>
+      </section>
+
+      {/* Leave Summary */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white shadow rounded-xl p-4 text-center border border-gray-200">
+          <p className="text-gray-500 text-sm">Total Leaves</p>
+          <h2 className="text-2xl font-bold text-gray-800">{total_leave}</h2>
         </div>
-    );
+        <div className="bg-white shadow rounded-xl p-4 text-center border border-gray-200">
+          <p className="text-gray-500 text-sm">Leaves Taken</p>
+          <h2 className="text-2xl font-bold text-red-500">{approvedDays}</h2>
+        </div>
+        <div className="bg-white shadow rounded-xl p-4 text-center border border-gray-200">
+          <p className="text-gray-500 text-sm">Remaining</p>
+          <h2
+            className={`text-2xl font-bold ${
+              remainingDays > 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {remainingDays}
+          </h2>
+        </div>
+      </section>
+
+      {/* Progress Chart */}
+      <section className="bg-white shadow rounded-xl p-6 border border-gray-200 mb-8">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          Leave Utilization
+        </h2>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+          {/* Pie Chart */}
+          <div className="w-60 h-60">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={leaveData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={5}
+                >
+                  {leaveData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 bg-red-500 rounded"></span>
+              <p className="text-gray-700">
+                Taken:{" "}
+                <span className="font-semibold text-red-600">
+                  {approvedDays} days
+                </span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 bg-green-500 rounded"></span>
+              <p className="text-gray-700">
+                Remaining:{" "}
+                <span className="font-semibold text-green-600">
+                  {remainingDays} days
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Leave Cards */}
+      <section>
+        {loading && (
+          <p className="text-center text-blue-600 font-medium">Loading...</p>
+        )}
+        {error && (
+          <p className="text-center text-red-600 font-medium">{error}</p>
+        )}
+
+        {!loading &&
+          !error &&
+          (!personalLeave?.leaves || personalLeave.leaves.length === 0) && (
+            <p className="text-center text-gray-500">
+              No leave records found. Apply for your first leave!
+            </p>
+          )}
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {personalLeave?.leaves?.map((leave) => (
+            <PersonalLeaveCard key={leave._id} leave={leave} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default Leave;

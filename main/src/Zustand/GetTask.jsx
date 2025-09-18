@@ -12,8 +12,8 @@ export const useTaskStore = create((set) => ({
             const authUser = localStorage.getItem("authUser");
             const parsedUser = authUser ? JSON.parse(authUser) : null;
             const userId = parsedUser?._id;
-            const token = parsedUser?.token;
-            
+            const token = parsedUser?.accessToken;
+            // console.log("Fetching token for user:", token);
 
             if (!userId || !token) {
                 throw new Error("User not authenticated");
@@ -21,7 +21,7 @@ export const useTaskStore = create((set) => ({
 
 
             const res = await fetch(
-                `https://hrms-backend2.onrender.com/api/get-tasks`,
+                `https://hrms-backend-9qzj.onrender.com/api/task/get-tasks`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -33,6 +33,7 @@ export const useTaskStore = create((set) => ({
             if (!res.ok) throw new Error("Failed to fetch tasks");
 
             const data = await res.json();
+           
             set({ tasks: data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
